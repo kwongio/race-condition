@@ -25,6 +25,4 @@ public class StockService {
         stock.decrease(quantity);
         stockRepository.save(stock);
     }
-
-
 }

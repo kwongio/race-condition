@@ -13,8 +13,6 @@ public class NamedLockStockFacade {
 
     private final StockService stockService;
 
-
-    @Transactional
     public void decrease(Long id, Long quantity) {
         try {
             lockRepository.getLock(id.toString());
