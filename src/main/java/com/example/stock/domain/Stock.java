@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -17,8 +19,8 @@ public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long productId;
+    @Getter
     private Long quantity;
 
     @Builder
@@ -26,10 +28,6 @@ public class Stock {
         this.id = id;
         this.productId = productId;
         this.quantity = quantity;
-    }
-
-    public Long getQuantity() {
-        return quantity;
     }
 
     public void decrease(Long quantity) {

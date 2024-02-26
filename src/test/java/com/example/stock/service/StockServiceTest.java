@@ -3,6 +3,9 @@ package com.example.stock.service;
 import com.example.stock.domain.Stock;
 import com.example.stock.repository.StockRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,15 +13,32 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 @SpringBootTest
 class StockServiceTest {
+
 
     @Autowired
     private StockService stockService;
 
     @Autowired
-    private  StockRepository stockRepository;
+    private StockRepository stockRepository;
+
+
+    @BeforeEach
+    public void before() {
+        stockRepository.save(Stock.builder()
+                .productId(1L)
+                .quantity(100L)
+                .build());
+    }
+
+    @AfterEach
+    public void after() {
+        stockRepository.deleteAll();
+    }
+
 
     @Test
     public void test1() {
@@ -34,14 +54,10 @@ class StockServiceTest {
 
     @Test
     public void 동시에_100개_요청() throws InterruptedException {
-        stockRepository.save(Stock.builder()
-                .quantity(100L)
-                .productId(1L)
-                .build());
         int threadCount = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(32);
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
                     stockService.decrease(1L, 1L);
@@ -57,8 +73,8 @@ class StockServiceTest {
         countDownLatch.await();
         Stock stock = stockRepository.findById(1L).orElseThrow();
         Assertions.assertThat(0L).isEqualTo(stock.getQuantity());
+        System.out.println(stock.getQuantity());
     }
-
 
 
 }
