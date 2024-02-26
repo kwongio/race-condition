@@ -72,7 +72,7 @@ class StockServiceTest {
         }
         countDownLatch.await();
         Stock stock = stockRepository.findById(1L).orElseThrow();
-        Assertions.assertThat(0L).isEqualTo(stock.getQuantity());
+        Assertions.assertThat(stock.getQuantity()).isEqualTo(0L);
         System.out.println(stock.getQuantity());
     }
 
