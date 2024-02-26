@@ -5,6 +5,8 @@ spring:
     url: jdbc:mysql://localhost:3306/stock?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: 1234
+    hikari:
+      maximum-pool-size: 40
 
   jpa:
     hibernate:

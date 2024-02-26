@@ -1,6 +1,7 @@
 package com.example.stock.service;
 
 import com.example.stock.domain.Stock;
+import com.example.stock.facade.NamedLockStockFacade;
 import com.example.stock.facade.OptimisticLockStockFacade;
 import com.example.stock.repository.StockRepository;
 import org.assertj.core.api.Assertions;
@@ -15,11 +16,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @SpringBootTest
-class OptimisticStockServiceTest {
+class NamedLockStockServiceTest {
 
 
     @Autowired
-    private OptimisticLockStockFacade optimisticLockStockFacade;
+    private NamedLockStockFacade namedLockStockFacade;
 
     @Autowired
     private StockRepository stockRepository;
@@ -46,9 +47,7 @@ class OptimisticStockServiceTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    optimisticLockStockFacade.decrease(1L, 1L);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    namedLockStockFacade.decrease(1L, 1L);
                 } finally {
                     countDownLatch.countDown();
                 }
