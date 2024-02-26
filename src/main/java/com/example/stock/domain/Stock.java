@@ -1,9 +1,6 @@
 package com.example.stock.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,10 +28,13 @@ public class Stock {
     }
 
     public void decrease(Long quantity) {
-        if (this.quantity - quantity < 0 ) {
+        if (this.quantity - quantity < 0) {
             throw new RuntimeException();
         }
         this.quantity -= quantity;
 
     }
+
+    @Version
+    private Long version;
 }
