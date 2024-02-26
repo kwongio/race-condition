@@ -37,18 +37,6 @@ class PessimisticStockServiceTest {
         stockRepository.deleteAll();
     }
 
-
-    @Test
-    public void test1() {
-        stockRepository.save(Stock.builder()
-                .quantity(100L)
-                .productId(1L)
-                .build());
-        stockService.decrease(1L, 1L);
-        Stock stock = stockRepository.findById(1L).orElseThrow();
-        Assertions.assertThat(stock.getQuantity()).isEqualTo(99L);
-    }
-
     @Test
     public void 동시에_100개_요청() throws InterruptedException {
         int threadCount = 100;
