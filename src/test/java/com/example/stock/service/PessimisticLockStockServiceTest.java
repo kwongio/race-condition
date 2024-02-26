@@ -14,11 +14,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @SpringBootTest
-class StockServiceTest {
+class PessimisticLockStockServiceTest {
 
 
     @Autowired
-    private StockService stockService;
+    private PessimisticLockStockService stockService;
 
     @Autowired
     private StockRepository stockRepository;
@@ -45,7 +45,8 @@ class StockServiceTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    stockService.synchronizeDecrease(1L, 1L);
+                    stockService.decrease(1L, 1L);
+
                 } finally {
                     countDownLatch.countDown();
                 }
