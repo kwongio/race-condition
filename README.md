@@ -1,3 +1,4 @@
+
 ![img_9.png](img_9.png)
 ![img_10.png](img_10.png)
 ![img_11.png](img_11.png)
@@ -314,3 +315,7 @@ public class RedissonLockStockFacade {
   - 사용 중인 Redis가 없다면 별도의 구축 비용과 인프라 관리 비용이 발생함
   - Mysql 보다 성능이 좋음
  
+
+
+### 참고
+https://www.inflearn.com/course/%EB%8F%99%EC%8B%9C%EC%84%B1%EC%9D%B4%EC%8A%88-%EC%9E%AC%EA%B3%A0%EC%8B%9C%EC%8A%A4%ED%85%9C/dashboard
