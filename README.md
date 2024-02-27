@@ -214,9 +214,99 @@ public class Stock {
 
 - Redisson
   - pub-sub 기반으로 Lock 구현 제공
+  - Redisson 라이브러리 추가하기
+  - Redisson은 lock 관련 class를 라이브러리에서 제공해주기 때문에 별도의 repository를 작성하지 않아도 됩니다.
+    
 ![img_6.png](img_6.png)
 
 
-### Lettuce를 활용해 재고감소 로직 작성하기
+### Lettuce를 사용한 동시성 문제 해결
 MySQL Named Lock과 비슷함
 세션 관리에 신경을 쓰지 않아도 됨
+
+```java
+@Repository
+@RequiredArgsConstructor
+public class RedisRepository {
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    public Boolean lock(Long key) {
+        return redisTemplate
+                .opsForValue()
+                .setIfAbsent(generateKey(key), "lock", Duration.ofMillis(3000));
+    }
+
+    public Boolean unlock(Long key) {
+        return redisTemplate
+                .delete(generateKey(key));
+    }
+
+    private String generateKey(Long key) {
+        return key.toString();
+    }
+}
+
+```
+
+```java
+
+    public void decrease(Long id, Long quantity) throws InterruptedException {
+        while (!redisRepository.lock(id)) {
+            Thread.sleep(100);
+        }
+        try {
+            stockService.decrease(id, quantity);
+        } finally {
+            redisRepository.unlock(id);
+        }
+    }
+```
+
+
+### Redisson를 사용한 동시성 문제 해결
+![img_8.png](img_8.png)
+
+```java
+@Component
+@RequiredArgsConstructor
+public class RedissonLockStockFacade {
+
+    private final RedissonClient redissonClient;
+    private final StockService stockService;
+
+    public void decrease(Long id, Long quantity) throws InterruptedException {
+        RLock lock = redissonClient.getLock(id.toString());
+
+        try {
+            boolean available = lock.tryLock(30, 1, TimeUnit.SECONDS);
+            if (!available) {
+                System.out.println("lock 획득 실패");
+                return;
+            }
+            stockService.decrease(id, quantity);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+
+```
+
+## 실무
+- 재시도가 필요한 경우에는 redisson 활용
+- 재시도가 필요하지 않은 경우에는 lettuce 활용
+
+### Mysql과 Redis 비교
+- Mysql
+  - 이미 Mysql을 사용 중이면 별도의 비용 없이 사용 가능함
+  - 어느 정도의 트래픽까지는 문제없이 활용 가능
+  - Redis 보다는 성능이 좋지 않음
+
+
+- Redis
+  - 사용 중인 Redis가 없다면 별도의 구축 비용과 인프라 관리 비용이 발생함
+  - Mysql 보다 성능이 좋음
+ 
